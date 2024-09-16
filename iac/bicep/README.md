@@ -1,6 +1,6 @@
 # Bicep
 
-This directory contains bicep templates that are used to create the function app resources so I can deploy my python azure function. In order to use your own parameter files, this repo is setup to copy the `*.bicepparam` files and create your own with the `dev.bicepparam` extension. They will be ignored from check-in. I'm using [Azure Verifed Modules](https://azure.github.io/Azure-Verified-Modules/indexes/bicep/bicep-resource-modules/) where they exist to create these bicep files.
+This directory contains bicep templates that are used to create the function app resources so I can deploy my java azure function. In order to use your own parameter files, this repo is setup to copy the `*.bicepparam` files and create your own with the `dev.bicepparam` extension. They will be ignored from check-in. I'm using [Azure Verifed Modules](https://azure.github.io/Azure-Verified-Modules/indexes/bicep/bicep-resource-modules/) where they exist to create these bicep files.
 
 ## Deploying with Bicep
 
@@ -62,7 +62,7 @@ Before you begin, ensure you have the following installed:
     Prerequisites:
     - None, everything should get created using the bicep file
 
-    `create-py-function-all.bicep` is the main template for this.
+    `create-java-function-all.bicep` is the main template for this.
 
     What's included:
 
@@ -79,5 +79,5 @@ Before you begin, ensure you have the following installed:
     **Command to deploy via bicep:**
 
     ```bash
-    az deployment sub create --subscription <subscription-id> --location <location> --name python-azfunction-deploy --parameters ./iac/bicep/create-py-function-all.dev.bicepparam
+    az deployment sub create --subscription <subscription-id> --location <location> --name java-azfunction-deploy --parameters ./iac/bicep/create-java-function-all.dev.bicepparam
     ```
