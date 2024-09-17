@@ -36,6 +36,9 @@ param functionAppName string = '<functionApp>'
 @description('Name of the keyvault to store secrets.')
 param keyVaultName string = '<keyVaultName>'
 
+@description('Name of the dashboard to show all the cool metrics')
+param demoDashboard string = 'myDashboard'
+
 //create resource group
 module resourceGroupResource 'br/public:avm/res/resources/resource-group:0.3.0' = {
   name: 'createResourceGroup'
@@ -272,3 +275,273 @@ module appSettingsModule 'modules/currentAppSettings.bicep' = {
   }
 }
 
+module dashboard 'br/public:avm/res/portal/dashboard:0.3.0' = {
+  name: 'dashboardDeployment'
+  scope: resourceGroup(rgName)
+//  dependsOn: [ appSettingsModule ]
+  params: {
+    // Required parameters
+    name: demoDashboard 
+
+    // Non-required parameters
+    lenses: [
+      {
+        order: 0
+        parts: [
+          {
+            position: {
+              x: 0
+              y: 0
+              rowSpan: 3
+              colSpan: 6
+            }
+            metadata: {
+                inputs: [
+                    {
+                        name: 'ComponentId'
+                        value: '/subscriptions/${subscriptionId}/resourceGroups/${rgName}/providers/Microsoft.Insights/components/${appInsightsName}'
+                    }
+                ]
+                type: 'Extension/AppInsightsExtension/PartType/AppMapGalPt'
+                settings: {}
+            }
+          }
+          {
+            position: {
+              x: 6 
+              y: 0
+              colSpan: 6
+              rowSpan: 3
+            }
+            metadata: {
+              inputs: [
+                {
+                  isOptional: true
+                  // Define the scope to point to the Log Analytics workspace
+                  name: 'Scope'
+                  value: {
+                    resourceIds: [
+                      '/subscriptions/${subscriptionId}/resourceGroups/${rgName}/providers/Microsoft.Insights/components/${appInsightsName}'
+                    ]
+                  }
+                }
+                {
+                  isOptional: true
+                  name: 'Version'
+                  value: '2.0'
+                }
+                {
+                  isOptional: true
+                  name: 'TimeRange'
+                  value: 'PT4H'
+                }
+                {
+                  isOptional: true
+                  name: 'ControlType'
+                  value: 'AnalyticsGrid'
+                }
+                {
+                  // The query to run within the Log Analytics workspace
+                  name: 'Query'
+                  value: 'traces\n| where message == "Message processed successfully"\n| summarize count() by message, operation_Name, bin(timestamp, 1m)\n| order by timestamp desc'  // Your KQL query
+                }
+              ]
+              partHeader: {
+                title: 'Processed Messages'
+                subtitle: appInsightsName
+              }
+              settings: {}
+              type: 'Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart'
+            }
+          }
+          {
+            position: {
+              colSpan: 6
+              rowSpan: 3
+              x: 0 
+              y: 3 
+            }
+            metadata: {
+              inputs: [
+                {
+                  isOptional: true
+                  // Define the scope to point to the Log Analytics workspace
+                  name: 'Scope'
+                  value: {
+                    resourceIds: [
+                      '/subscriptions/${subscriptionId}/resourceGroups/${rgName}/providers/Microsoft.Insights/components/${appInsightsName}'
+                    ]
+                  }
+                }
+                {
+                  isOptional: true
+                  name: 'Version'
+                  value: '2.0'
+                }
+                {
+                  isOptional: true
+                  name: 'TimeRange'
+                  value: 'PT4H'
+                }
+                {
+                  isOptional: true
+                  name: 'ControlType'
+                  value: 'AnalyticsGrid'
+                }
+                {
+                  isOptional: true
+                  name: 'Query'
+                  value: 'requests\n| where cloud_RoleName == "${functionAppName}"\n| summarize TotalSuccess=countif(success == true), TotalFailures=countif(success == false) by bin(timestamp, 1h)\n| order by timestamp desc'
+                }
+              ]
+              partHeader: {
+                title: 'Function Success vs Failure'
+                subtitle: functionAppName
+              }
+              settings: {}
+              type: 'Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart'
+            }
+          }
+          {
+            position: {
+              colSpan: 6
+              rowSpan: 3
+              x: 6
+              y: 3
+            }
+            metadata: {
+              inputs: [
+                {
+                  isOptional: true
+                  // Define the scope to point to the Log Analytics workspace
+                  name: 'Scope'
+                  value: {
+                    resourceIds: [
+                      '/subscriptions/${subscriptionId}/resourceGroups/${rgName}/providers/Microsoft.Insights/components/${appInsightsName}'
+                    ]
+                  }
+                }
+                {
+                  isOptional: true
+                  name: 'Version'
+                  value: '2.0'
+                }
+                {
+                  isOptional: true
+                  name: 'TimeRange'
+                  value: 'PT4H'
+                }
+                {
+                  isOptional: true
+                  name: 'ControlType'
+                  value: 'AnalyticsGrid'
+                }
+                {
+                  isOptional: true
+                  name: 'Query'
+                  value: 'requests\n| where cloud_RoleName == "${functionAppName}"\n| summarize AvgDuration=avg(duration) by bin(timestamp, 1h)\n| order by timestamp desc'
+                }
+              ]
+              partHeader: {
+                title: 'Average Execution Time'
+                subtitle: functionAppName
+              }
+              settings: {}
+              type: 'Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart'
+            }
+          }
+          {
+            position: {
+              colSpan: 12
+              rowSpan: 5
+              x: 0
+              y: 6
+            }
+            metadata: {
+              inputs: [
+                {
+                  isOptional: true
+                  // Define the scope to point to the Log Analytics workspace
+                  name: 'Scope'
+                  value: {
+                    resourceIds: [
+                      '/subscriptions/${subscriptionId}/resourceGroups/${rgName}/providers/Microsoft.Insights/components/${appInsightsName}'
+                    ]
+                  }
+                }
+                {
+                  isOptional: true
+                  name: 'Version'
+                  value: '2.0'
+                }
+                {
+                  isOptional: true
+                  name: 'TimeRange'
+                  value: 'PT4H'
+                }
+                {
+                  isOptional: true
+                  name: 'ControlType'
+                  value: 'AnalyticsGrid'
+                }
+                {
+                  isOptional: true
+                  name: 'Query'
+                  value: 'traces\n| where cloud_RoleName == "${functionAppName}"\n| summarize count() by message, bin(timestamp, 1h)\n| order by timestamp desc'
+                }
+              ]
+              partHeader: {
+                title: 'Trace Logs Summary'
+                subtitle: functionAppName
+              }
+              settings: {
+                content: {
+                  GridColumnsWidth: {
+                    message: '719px'
+                  }
+                }
+              }
+              type: 'Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart'
+            }
+          }
+        ]
+      }
+    ]
+    
+    location: location
+    
+    metadata: {
+      model: {
+        filterLocale: {
+          value: 'en-us'
+        }
+        filters: {
+          value: {
+            MsPortalFx_TimeRange: {
+              displayCache: {
+                name: 'UTC Time'
+                value: 'Past 4 hours'
+              }
+              filteredPartIds: []
+              model: {
+                format: 'utc'
+                granularity: 'auto'
+                relative: '24h'
+              }
+            }
+          }
+        }
+        timeRange: {
+          type: 'MsPortalFx.Composition.Configuration.ValueTypes.TimeRange'
+          value: {
+            relative: {
+              duration: 4
+              timeUnit: 1
+            }
+          }
+        }
+      }
+    }
+    
+  }
+}

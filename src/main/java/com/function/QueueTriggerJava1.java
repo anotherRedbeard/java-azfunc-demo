@@ -24,8 +24,10 @@ public class QueueTriggerJava1 {
         @QueueTrigger(name = "message", queueName = "egtestqueue", connection = "AzureWebJobsStorage") MessageBody message,
         final ExecutionContext context
     ) {
+        context.getLogger().info("Message received");
         context.getLogger().info("Default Logger - Java Queue trigger function processed a message: " + message.getTopic());
 
+        try {
         // Set MDC values
         MDC.put("Event Type", message.getEventType());
         MDC.put("Data API",message.getData().getApi());
@@ -54,7 +56,12 @@ public class QueueTriggerJava1 {
             .addKeyValue("Data API",message.getData().getApi())
             .addKeyValue("Storage Diagnostics Batch ID", message.getData().getStorageDiagnostics().getBatchId())
             .log();
-
-        MDC.clear();
+        } catch (Exception e) {
+            logger.error("An error occurred");
+            context.getLogger().severe("An error occurred while processing the message: " + e.getMessage());
+        } finally {
+            MDC.clear();
+            context.getLogger().info("Message processed successfully");
+        }
     }
 }
