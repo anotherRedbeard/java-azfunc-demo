@@ -1,4 +1,4 @@
-# Python Azure Functions Demo
+# Java Azure Functions Demo
 
 This repository contains a demo project for Azure Functions using Java. The project includes a Queue and Blob based trigger, infrastructure deployment scripts, and configuration files.
 
